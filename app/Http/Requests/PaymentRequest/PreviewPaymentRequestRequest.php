@@ -5,7 +5,7 @@ namespace App\Http\Requests\PaymentRequest;
 use App\Http\Requests\PaymentRequest\Concerns\HasConversionRules;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePaymentRequestRequest extends FormRequest
+class PreviewPaymentRequestRequest extends FormRequest
 {
     use HasConversionRules;
 
@@ -19,9 +19,6 @@ class StorePaymentRequestRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            ...$this->conversionRules(),
-            'description' => ['nullable', 'string', 'max:1000'],
-        ];
+        return $this->conversionRules();
     }
 }

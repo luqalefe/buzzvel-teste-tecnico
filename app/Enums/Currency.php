@@ -59,12 +59,4 @@ enum Currency: string
     {
         return $this === self::EUR;
     }
-
-    /**
-     * @return array<int, string>
-     */
-    public static function codes(): array
-    {
-        return array_column(self::cases(), 'value');
-    }
 }

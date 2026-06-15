@@ -115,6 +115,19 @@ class PaymentRequest extends Model
     }
 
     /**
+     * Requests the given user may see: their own, or everyone's if they are
+     * finance. Centralises the "employee sees own / finance sees all" rule.
+     *
+     * @param  Builder<PaymentRequest>  $query
+     */
+    public function scopeVisibleTo(Builder $query, User $user): void
+    {
+        if (! $user->isFinance()) {
+            $query->forUser($user);
+        }
+    }
+
+    /**
      * @param  Builder<PaymentRequest>  $query
      */
     public function scopeWithStatus(Builder $query, PaymentStatus $status): void

@@ -24,14 +24,6 @@ enum PaymentStatus: string
     }
 
     /**
-     * A terminal status can never transition to another status.
-     */
-    public function isTerminal(): bool
-    {
-        return $this !== self::Pending;
-    }
-
-    /**
      * The statuses a finance member is allowed to move a pending request into.
      *
      * @return array<int, self>

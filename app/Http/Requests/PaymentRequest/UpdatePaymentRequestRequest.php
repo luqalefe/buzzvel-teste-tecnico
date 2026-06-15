@@ -18,16 +18,13 @@ class UpdatePaymentRequestRequest extends FormRequest
      */
     public function rules(): array
     {
+        // The whitelist is derived from the enum's single source of truth:
+        // finance may only ever decide approved or rejected.
         return [
-            // Finance may only ever decide approved or rejected; pending/expired
-            // are not valid decisions and are rejected as invalid input.
             'status' => [
                 'required',
                 'string',
-                Rule::in([
-                    PaymentStatus::Approved->value,
-                    PaymentStatus::Rejected->value,
-                ]),
+                Rule::in(array_map(fn (PaymentStatus $status) => $status->value, PaymentStatus::financeDecisions())),
             ],
         ];
     }

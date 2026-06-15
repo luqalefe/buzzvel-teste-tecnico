@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Enums\PaymentStatus;
 use App\Models\PaymentRequest;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Expire every pending request that has been waiting longer than the 48h TTL.
@@ -19,7 +20,7 @@ class ExpireStalePaymentRequests
 
         PaymentRequest::query()
             ->expirable($threshold)
-            ->chunkById(500, function ($requests) use (&$expired): void {
+            ->chunkById(500, function (Collection $requests) use (&$expired): void {
                 foreach ($requests as $request) {
                     // transitionTo keeps the state-machine + immutability rules
                     // centralised (only pending → expired ever happens here).
