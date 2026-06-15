@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Currency;
+use App\Enums\Role;
 use App\Models\PaymentRequest;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -13,18 +14,20 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
+    /**
+     * Idempotent seed: users are upserted by e-mail and the sample payment
+     * requests are only created on an empty database. This lets the live
+     * deployment run `migrate --seed` on every release without piling up data.
+     */
     public function run(): void
     {
         $password = Hash::make('password');
 
         // ── Finance team member (password: "password") ────────────────────
-        $finance = User::factory()->finance()->create([
-            'name' => 'Fiona Finance',
-            'email' => 'finance@buzzvel.test',
-            'password' => $password,
-            'country' => 'Portugal',
-            'currency' => Currency::EUR,
-        ]);
+        $finance = User::firstOrCreate(
+            ['email' => 'finance@buzzvel.test'],
+            ['name' => 'Fiona Finance', 'password' => $password, 'country' => 'Portugal', 'currency' => Currency::EUR, 'role' => Role::Finance],
+        );
 
         // ── Employees across different countries & currencies (≥5) ─────────
         $employees = [
@@ -36,14 +39,21 @@ class DatabaseSeeder extends Seeder
             ['Astrid Lindholm', 'astrid@buzzvel.test', 'Sweden', Currency::SEK],
         ];
 
+        $users = [];
         foreach ($employees as [$name, $email, $country, $currency]) {
-            $user = User::factory()->employee()->create([
-                'name' => $name,
-                'email' => $email,
-                'password' => $password,
-                'country' => $country,
-                'currency' => $currency,
-            ]);
+            $users[] = User::firstOrCreate(
+                ['email' => $email],
+                ['name' => $name, 'password' => $password, 'country' => $country, 'currency' => $currency, 'role' => Role::Employee],
+            );
+        }
+
+        // Sample requests are demo-only: skip once the database already has data.
+        if (PaymentRequest::query()->exists()) {
+            return;
+        }
+
+        foreach ($users as $user) {
+            $currency = $user->currency;
 
             // A spread of statuses so the dashboards and lists have data.
             PaymentRequest::factory()->for($user)->forCurrency($currency)->count(3)->create();
@@ -52,7 +62,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // ── Edge cases for the 48h expiry rule ────────────────────────────
-        $alice = User::where('email', 'employee@buzzvel.test')->firstOrFail();
+        $alice = $users[0];
         PaymentRequest::factory()->for($alice)->forCurrency(Currency::BRL)->createdHoursAgo(47)->create(); // still pending
         PaymentRequest::factory()->for($alice)->forCurrency(Currency::BRL)->expired()->createdHoursAgo(72)->create();
 
