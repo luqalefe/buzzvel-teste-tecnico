@@ -219,10 +219,12 @@ systemctl enable --now postgresql >/dev/null 2>&1 || true
 if [ "$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='${DB_ROLE}'")" = "1" ]; then
   skip "PostgreSQL role ${DB_ROLE}"
 else
-  # Pass the secret via psql variable so it never lands in process args / history.
-  sudo -u postgres psql -v ON_ERROR_STOP=1 \
-       -v pw="${BUZZPAY_DB_PASSWORD}" \
-       -c "CREATE ROLE ${DB_ROLE} LOGIN PASSWORD :'pw';"
+  # Pass the secret via a psql variable interpolated as a quoted literal (:'pw'),
+  # fed on STDIN. psql does NOT interpolate :'var' in -c mode — only when reading
+  # a script/STDIN — so we pipe the statement in. This keeps the password out of
+  # process args and shell history.
+  printf "CREATE ROLE %s LOGIN PASSWORD :'pw';\n" "${DB_ROLE}" \
+    | sudo -u postgres psql -v ON_ERROR_STOP=1 -v pw="${BUZZPAY_DB_PASSWORD}"
   ok "role ${DB_ROLE} created"
 fi
 
