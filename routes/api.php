@@ -31,5 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payment-requests/{paymentRequest}', [PaymentRequestController::class, 'show'])
         ->name('payment-requests.show');
     Route::patch('/payment-requests/{paymentRequest}', [PaymentRequestController::class, 'update'])
+        ->middleware(EnsureIdempotency::class)
         ->name('payment-requests.update');
 });

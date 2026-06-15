@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Opt-in idempotency for unsafe (POST) endpoints, à la Stripe/Adyen.
+ * Opt-in idempotency for unsafe (POST/PATCH) endpoints, à la Stripe/Adyen.
  *
  * When a client sends an `Idempotency-Key` header, the first response is stored
- * and replayed on any retry with the same key + payload — so a network retry or
- * double-submit never creates a duplicate payment request (and never fires a
- * second exchange-rate call). A same key with a different payload is a 409.
+ * and replayed on any retry with the same key + request — so a network retry or
+ * double-submit never acts twice (no duplicate create, no second exchange-rate
+ * call, no double approval). The fingerprint covers method + path + body, so the
+ * same key reused for a different request (or a different resource) is a 409.
  * Server errors (5xx, e.g. provider unavailable) are NOT stored, so they stay
  * retryable.
  */
@@ -33,7 +34,9 @@ class EnsureIdempotency
             return response()->json(['message' => 'The Idempotency-Key is too long.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $hash = hash('sha256', $request->getContent());
+        // Fingerprint the whole request (method + path + body), not just the
+        // body, so the same key on a different resource/route can't wrongly replay.
+        $hash = hash('sha256', implode('|', [$request->method(), $request->path(), $request->getContent()]));
 
         $existing = IdempotencyKey::query()
             ->where('user_id', $user->id)

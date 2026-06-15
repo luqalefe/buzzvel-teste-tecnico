@@ -232,6 +232,13 @@ class ApiDoc
         security: [['sanctum' => []]],
         parameters: [
             new OA\Parameter(name: 'paymentRequest', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(
+                name: 'Idempotency-Key',
+                in: 'header',
+                required: false,
+                description: 'Optional. A retry with the same key + request replays the original decision instead of acting twice; a different request with the same key yields 409.',
+                schema: new OA\Schema(type: 'string'),
+            ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -247,6 +254,7 @@ class ApiDoc
             new OA\Response(response: 403, description: 'Forbidden (not finance)', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
             new OA\Response(response: 404, description: 'Not found', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
             new OA\Response(response: 422, description: 'Invalid status or transition', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+            new OA\Response(response: 409, description: 'Idempotency-Key reused with a different request', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
             new OA\Response(response: 401, description: 'Unauthenticated', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
         ],
     )]

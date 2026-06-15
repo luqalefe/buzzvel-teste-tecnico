@@ -124,7 +124,7 @@ Base path: `/api`. All domain routes require `Authorization: Bearer {token}` (Sa
 
 Errors follow Laravel's shape: `{ "message": "...", "errors": { ... } }` (the `errors` object is present for validation failures).
 
-**Idempotency**: `POST /api/payment-requests` accepts an optional `Idempotency-Key` header. A retry with the same key + payload replays the original response (same request, no duplicate, no second FX call); the same key with a different payload returns `409`. Transient `503`s (provider down) are not cached, so they stay retryable. Reads are naturally idempotent and the 48h expiry job is safe to re-run.
+**Idempotency**: both unsafe writes — `POST /api/payment-requests` (create) and `PATCH /api/payment-requests/{id}` (approve/reject) — accept an optional `Idempotency-Key` header. A retry with the same key replays the original response (no duplicate create, no second FX call, no double-decision); the same key reused for a *different* request returns `409` (the fingerprint is method + path + body). Transient `503`s (provider down) aren't cached, so they stay retryable. Reads are naturally idempotent and the 48h expiry job is safe to re-run.
 
 - **Interactive docs**: `/api/documentation` (Swagger UI). Regenerate with `php artisan l5-swagger:generate`.
 - **Postman**: import [`docs/PaymentPT.postman_collection.json`](docs/PaymentPT.postman_collection.json). Run *Login* first; the token is stored and reused automatically.

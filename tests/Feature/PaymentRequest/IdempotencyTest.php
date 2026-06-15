@@ -3,6 +3,8 @@
 namespace Tests\Feature\PaymentRequest;
 
 use App\Enums\Currency;
+use App\Enums\PaymentStatus;
+use App\Models\PaymentRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -23,6 +25,13 @@ class IdempotencyTest extends TestCase
     private function actAsEmployee(): void
     {
         Sanctum::actingAs(User::factory()->employee()->currency(Currency::BRL)->create());
+    }
+
+    private function pendingRequest(): PaymentRequest
+    {
+        $owner = User::factory()->employee()->create();
+
+        return PaymentRequest::factory()->for($owner)->forCurrency(Currency::BRL)->pending()->create();
     }
 
     public function test_replaying_the_same_idempotency_key_returns_the_same_request_without_duplicating(): void
@@ -103,5 +112,57 @@ class IdempotencyTest extends TestCase
         // The same key is NOT locked to the failed 503 — the retry succeeds.
         $this->withHeader('Idempotency-Key', 'retry-1')->postJson('/api/payment-requests', $payload)->assertCreated();
         $this->assertDatabaseCount('payment_requests', 1);
+    }
+
+    // ── PATCH (approve/reject) idempotency ──────────────────────────────────
+
+    public function test_replaying_an_approval_with_the_same_key_replays_the_decision_without_erroring(): void
+    {
+        $request = $this->pendingRequest();
+        Sanctum::actingAs(User::factory()->finance()->create());
+
+        $first = $this->withHeader('Idempotency-Key', 'patch-1')
+            ->patchJson("/api/payment-requests/{$request->id}", ['status' => 'approved'])
+            ->assertOk();
+
+        // Without idempotency a repeat would 422 (no longer pending); here it
+        // replays the original 200 decision.
+        $second = $this->withHeader('Idempotency-Key', 'patch-1')
+            ->patchJson("/api/payment-requests/{$request->id}", ['status' => 'approved'])
+            ->assertOk();
+
+        $first->assertHeaderMissing('Idempotent-Replayed');
+        $second->assertHeader('Idempotent-Replayed', 'true');
+        $this->assertSame(PaymentStatus::Approved, $request->fresh()->status);
+    }
+
+    public function test_the_same_patch_key_with_a_different_decision_conflicts(): void
+    {
+        $request = $this->pendingRequest();
+        Sanctum::actingAs(User::factory()->finance()->create());
+
+        $this->withHeader('Idempotency-Key', 'patch-2')
+            ->patchJson("/api/payment-requests/{$request->id}", ['status' => 'approved'])->assertOk();
+
+        $this->withHeader('Idempotency-Key', 'patch-2')
+            ->patchJson("/api/payment-requests/{$request->id}", ['status' => 'rejected'])->assertStatus(409);
+
+        $this->assertSame(PaymentStatus::Approved, $request->fresh()->status);
+    }
+
+    public function test_a_patch_key_cannot_be_reused_for_a_different_request(): void
+    {
+        $a = $this->pendingRequest();
+        $b = $this->pendingRequest();
+        Sanctum::actingAs(User::factory()->finance()->create());
+
+        $this->withHeader('Idempotency-Key', 'patch-3')
+            ->patchJson("/api/payment-requests/{$a->id}", ['status' => 'approved'])->assertOk();
+
+        // Same key, different resource (different path) → conflict, B untouched.
+        $this->withHeader('Idempotency-Key', 'patch-3')
+            ->patchJson("/api/payment-requests/{$b->id}", ['status' => 'approved'])->assertStatus(409);
+
+        $this->assertSame(PaymentStatus::Pending, $b->fresh()->status);
     }
 }
