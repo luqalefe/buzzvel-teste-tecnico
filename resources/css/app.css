@@ -226,3 +226,39 @@
     background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
     background-size: 16px 16px;
 }
+
+/* ── Landing-style motion for the auth brand panel (Buzzvel-flavoured) ───── */
+/* Slow drifting coral "glow" blobs (their circular/organic motif). */
+@keyframes blob-a {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(22px, -28px, 0) scale(1.18); }
+}
+@keyframes blob-b {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.1); }
+    50% { transform: translate3d(-26px, 22px, 0) scale(0.92); }
+}
+.animate-blob-a {
+    animation: blob-a 16s ease-in-out infinite;
+}
+.animate-blob-b {
+    animation: blob-b 20s ease-in-out infinite;
+}
+
+/* On-theme financial ticker: an infinite horizontal marquee. */
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+.animate-marquee {
+    animation: marquee 24s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-blob-a,
+    .animate-blob-b,
+    .animate-marquee,
+    .animate-fade-in-up,
+    .animate-fade-in {
+        animation: none;
+    }
+}

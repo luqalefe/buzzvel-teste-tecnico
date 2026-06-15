@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 
+const CURRENCY_TICKER = ['EUR', 'USD', 'GBP', 'BRL', 'JPY', 'CHF', 'SEK', 'PLN', 'NOK', 'DKK'];
+
 interface AuthShellProps {
     title: string;
     subtitle: string;
@@ -19,6 +21,9 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
             {/* Brand panel (desktop) — fixed graphite surface with a coral mark */}
             <aside className="relative hidden flex-col justify-between overflow-hidden bg-panel p-12 text-panel-foreground lg:flex">
                 <div className="bg-dotted pointer-events-none absolute inset-0 opacity-[0.1]" />
+                {/* Buzzvel-flavoured: slow drifting coral glow (their circular/organic motif) */}
+                <div className="animate-blob-a pointer-events-none absolute -left-24 -top-16 size-80 rounded-full bg-brand/25 blur-3xl" />
+                <div className="animate-blob-b pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-brand/15 blur-3xl" />
 
                 <div className="relative flex items-center gap-2.5">
                     <div className="flex size-9 items-center justify-center rounded-lg bg-brand text-brand-foreground">
@@ -32,16 +37,18 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
                         {t('app.tagline')}
                     </h2>
 
-                    {/* On-theme decoration: the currencies the product speaks — no fake data. */}
-                    <div className="flex max-w-xs flex-wrap gap-2">
-                        {['EUR', 'USD', 'GBP', 'BRL', 'JPY', 'CHF', 'SEK', 'PLN'].map((code) => (
-                            <span
-                                key={code}
-                                className="tnum rounded-md bg-panel-foreground/10 px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-panel-foreground/15"
-                            >
-                                {code}
-                            </span>
-                        ))}
+                    {/* On-theme financial ticker — an infinite marquee of currencies (no fake data). */}
+                    <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
+                        <div className="animate-marquee flex w-max gap-2">
+                            {[...CURRENCY_TICKER, ...CURRENCY_TICKER].map((code, i) => (
+                                <span
+                                    key={i}
+                                    className="tnum shrink-0 rounded-md bg-panel-foreground/10 px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-panel-foreground/15"
+                                >
+                                    {code}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
