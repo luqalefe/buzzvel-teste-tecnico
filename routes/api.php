@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentRequestController;
+use App\Http\Middleware\EnsureIdempotency;
 use Illuminate\Support\Facades\Route;
 
 // ── Public (guest) endpoints ────────────────────────────────────────────────
@@ -25,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/payment-requests/preview', [PaymentRequestController::class, 'preview'])
         ->name('payment-requests.preview');
     Route::post('/payment-requests', [PaymentRequestController::class, 'store'])
+        ->middleware(EnsureIdempotency::class)
         ->name('payment-requests.store');
     Route::get('/payment-requests/{paymentRequest}', [PaymentRequestController::class, 'show'])
         ->name('payment-requests.show');

@@ -178,6 +178,15 @@ class ApiDoc
         tags: ['Payment Requests'],
         summary: 'Create a payment request with automatic EUR conversion',
         security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'Idempotency-Key',
+                in: 'header',
+                required: false,
+                description: 'Optional. A retry with the same key + payload replays the original response instead of creating a duplicate; a different payload yields 409.',
+                schema: new OA\Schema(type: 'string'),
+            ),
+        ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -193,6 +202,7 @@ class ApiDoc
             new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/PaymentRequest')])),
             new OA\Response(response: 422, description: 'Validation error', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
             new OA\Response(response: 503, description: 'Exchange-rate provider unavailable', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
+            new OA\Response(response: 409, description: 'Idempotency-Key reused with a different request', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
             new OA\Response(response: 401, description: 'Unauthenticated', content: new OA\JsonContent(ref: '#/components/schemas/MessageResponse')),
         ],
     )]

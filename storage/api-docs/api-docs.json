@@ -320,6 +320,17 @@
                 ],
                 "summary": "Create a payment request with automatic EUR conversion",
                 "operationId": "b425650493d63beecdfbc765e37f77af",
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "Optional. A retry with the same key + payload replays the original response instead of creating a duplicate; a different payload yields 409.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -378,6 +389,16 @@
                     },
                     "503": {
                         "description": "Exchange-rate provider unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Idempotency-Key reused with a different request",
                         "content": {
                             "application/json": {
                                 "schema": {
