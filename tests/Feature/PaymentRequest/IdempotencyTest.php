@@ -36,6 +36,13 @@ class IdempotencyTest extends TestCase
 
         $this->assertSame($first->json('data.id'), $second->json('data.id'));
         $this->assertDatabaseCount('payment_requests', 1);
+
+        // The replay is flagged and serves the stored response.
+        $first->assertHeaderMissing('Idempotent-Replayed');
+        $second->assertHeader('Idempotent-Replayed', 'true');
+
+        // It skips the controller, so the exchange-rate provider is called once.
+        Http::assertSentCount(1);
     }
 
     public function test_same_key_with_a_different_payload_conflicts(): void
@@ -57,6 +64,26 @@ class IdempotencyTest extends TestCase
         $this->postJson('/api/payment-requests', ['amount' => 100, 'currency' => 'BRL'])->assertCreated();
         $this->postJson('/api/payment-requests', ['amount' => 100, 'currency' => 'BRL'])->assertCreated();
 
+        $this->assertDatabaseCount('payment_requests', 2);
+    }
+
+    public function test_an_idempotency_key_is_scoped_per_user_so_another_user_cannot_replay_the_stored_response(): void
+    {
+        $this->fakeRate(5.5);
+        $payload = ['amount' => 100, 'currency' => 'BRL'];
+
+        $userA = User::factory()->employee()->currency(Currency::BRL)->create();
+        $userB = User::factory()->employee()->currency(Currency::BRL)->create();
+
+        Sanctum::actingAs($userA);
+        $first = $this->withHeader('Idempotency-Key', 'shared')->postJson('/api/payment-requests', $payload)->assertCreated();
+
+        // Same literal key, different user: this is user B's own request, not a replay of A's.
+        Sanctum::actingAs($userB);
+        $second = $this->withHeader('Idempotency-Key', 'shared')->postJson('/api/payment-requests', $payload)->assertCreated();
+
+        $this->assertNotSame($first->json('data.id'), $second->json('data.id'));
+        $this->assertDatabaseHas('payment_requests', ['id' => $second->json('data.id'), 'user_id' => $userB->id]);
         $this->assertDatabaseCount('payment_requests', 2);
     }
 

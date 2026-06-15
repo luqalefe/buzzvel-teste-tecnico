@@ -36,17 +36,25 @@ class PaymentRequestStatsTest extends TestCase
     public function test_finance_gets_aggregates_across_all_users(): void
     {
         $finance = User::factory()->finance()->create();
-        PaymentRequest::factory()->forCurrency(Currency::BRL)->pending()->count(3)->create();
-        PaymentRequest::factory()->forCurrency(Currency::JPY)->approved()->count(2)->create();
+
+        // Pinned EUR values so the aggregation itself is checked, not just its shape.
+        PaymentRequest::factory()->forCurrency(Currency::BRL)->pending()->count(3)->create(['converted_amount_eur' => 100.00]);
+        PaymentRequest::factory()->forCurrency(Currency::JPY)->approved()->count(2)->create(['converted_amount_eur' => 50.00]);
 
         Sanctum::actingAs($finance);
 
         $this->getJson('/api/payment-requests/stats')
             ->assertOk()
             ->assertJsonPath('data.total_count', 5)
-            ->assertJsonStructure([
-                'data' => ['total_count', 'total_eur', 'count_by_status', 'eur_by_status', 'eur_by_currency'],
-            ]);
+            ->assertJsonPath('data.total_eur', 400)
+            ->assertJsonPath('data.count_by_status.pending', 3)
+            ->assertJsonPath('data.count_by_status.approved', 2)
+            ->assertJsonPath('data.count_by_status.rejected', 0)
+            ->assertJsonPath('data.count_by_status.expired', 0)
+            ->assertJsonPath('data.eur_by_status.pending', 300)
+            ->assertJsonPath('data.eur_by_status.approved', 100)
+            ->assertJsonPath('data.eur_by_currency.BRL', 300)
+            ->assertJsonPath('data.eur_by_currency.JPY', 100);
     }
 
     public function test_stats_does_not_collide_with_the_show_route(): void

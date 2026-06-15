@@ -102,15 +102,21 @@ class UpdatePaymentRequestStatusTest extends TestCase
         $this->assertSame(PaymentStatus::Pending, $own->fresh()->status);
     }
 
-    public function test_an_invalid_target_status_is_rejected_with_422(): void
+    public function test_a_real_status_that_is_not_a_finance_decision_is_rejected_with_422(): void
     {
         $request = $this->pendingRequest();
         Sanctum::actingAs(User::factory()->finance()->create());
 
-        // "pending" and "expired" are not valid finance decisions.
+        // "pending" is a valid status but not an allowed finance decision.
         $this->patchJson("/api/payment-requests/{$request->id}", ['status' => 'pending'])
             ->assertStatus(422)
             ->assertJsonValidationErrors('status');
+    }
+
+    public function test_a_nonexistent_status_is_rejected_with_422(): void
+    {
+        $request = $this->pendingRequest();
+        Sanctum::actingAs(User::factory()->finance()->create());
 
         $this->patchJson("/api/payment-requests/{$request->id}", ['status' => 'banana'])
             ->assertStatus(422)

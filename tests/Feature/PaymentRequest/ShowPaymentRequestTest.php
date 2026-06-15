@@ -56,6 +56,22 @@ class ShowPaymentRequestTest extends TestCase
             ->assertJsonPath('data.id', $request->id);
     }
 
+    public function test_expires_at_is_48h_after_creation_while_pending_and_null_once_decided(): void
+    {
+        $owner = User::factory()->employee()->create();
+        Sanctum::actingAs($owner);
+
+        $pending = PaymentRequest::factory()->for($owner)->forCurrency(Currency::BRL)->pending()->create();
+        $this->getJson("/api/payment-requests/{$pending->id}")
+            ->assertOk()
+            ->assertJsonPath('data.expires_at', $pending->created_at->copy()->addHours(48)->toIso8601String());
+
+        $decided = PaymentRequest::factory()->for($owner)->forCurrency(Currency::BRL)->approved()->create();
+        $this->getJson("/api/payment-requests/{$decided->id}")
+            ->assertOk()
+            ->assertJsonPath('data.expires_at', null);
+    }
+
     public function test_a_missing_request_returns_404(): void
     {
         Sanctum::actingAs(User::factory()->create());

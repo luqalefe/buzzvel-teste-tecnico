@@ -88,7 +88,6 @@ class CreatePaymentRequestTest extends TestCase
     public static function invalidAmounts(): array
     {
         return [
-            'missing' => [null],
             'zero' => [0],
             'negative' => [-10],
             'scientific notation' => ['1e5'],
@@ -99,15 +98,20 @@ class CreatePaymentRequestTest extends TestCase
     #[DataProvider('invalidAmounts')]
     public function test_it_rejects_an_invalid_amount_with_422(mixed $amount): void
     {
-        $user = User::factory()->create();
-        Sanctum::actingAs($user);
+        Sanctum::actingAs(User::factory()->create());
 
-        $payload = ['currency' => 'BRL'];
-        if ($amount !== null) {
-            $payload['amount'] = $amount;
-        }
+        $this->postJson('/api/payment-requests', ['amount' => $amount, 'currency' => 'BRL'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('amount');
 
-        $this->postJson('/api/payment-requests', $payload)
+        $this->assertDatabaseCount('payment_requests', 0);
+    }
+
+    public function test_it_rejects_a_missing_amount_with_422(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->postJson('/api/payment-requests', ['currency' => 'BRL'])
             ->assertStatus(422)
             ->assertJsonValidationErrors('amount');
 

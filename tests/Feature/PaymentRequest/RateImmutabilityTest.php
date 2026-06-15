@@ -56,7 +56,7 @@ class RateImmutabilityTest extends TestCase
         $this->assertSame(PaymentStatus::Approved, $request->status);
     }
 
-    public function test_a_request_keeps_its_original_rate_even_after_the_market_moves(): void
+    public function test_a_re_read_returns_the_originally_stored_rate(): void
     {
         $request = PaymentRequest::factory()->forCurrency(Currency::BRL)->create([
             'exchange_rate' => 5.0,
@@ -64,7 +64,7 @@ class RateImmutabilityTest extends TestCase
             'amount' => 100.0,
         ]);
 
-        // Time passes, the market moves — but a re-read still shows the snapshot.
+        // The rate is frozen at creation: a later read always returns that snapshot.
         $fresh = PaymentRequest::findOrFail($request->id);
 
         $this->assertEquals(5.0, (float) $fresh->exchange_rate);
