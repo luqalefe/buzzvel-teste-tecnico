@@ -24,7 +24,7 @@ Built test-first (TDD / XP) as a **Laravel 12 REST API** plus a polished **React
 
 | Layer | Choice |
 |------|--------|
-| API | Laravel 12, PHP 8.2+ (developed on 8.5) |
+| API | Laravel 12 · **PHP 8.2+** (Composer lock resolved for the 8.2 floor, so it installs on 8.2–8.5; developed on 8.5) |
 | Auth | Laravel Sanctum (bearer tokens) |
 | Runtime DB | PostgreSQL (via Laravel Sail) |
 | Test DB | SQLite in-memory |
