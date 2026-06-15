@@ -2,7 +2,7 @@ import type { Translations } from './en';
 
 export const cs: Translations = {
     app: {
-        name: 'PayFlow',
+        name: 'BuzzPay',
         tagline: 'Platební požadavky ve více měnách',
     },
     common: {

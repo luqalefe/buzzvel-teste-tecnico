@@ -158,7 +158,7 @@ export function CreateRequestDialog() {
                                     <Spinner className="size-3.5" /> {t('create.previewLoading')}
                                 </div>
                             ) : preview.isError ? (
-                                <div className="flex items-center gap-1.5 text-warning">
+                                <div className="flex items-center gap-1.5 text-status-pending">
                                     <AlertCircle className="size-3.5" /> {t('create.previewError')}
                                 </div>
                             ) : preview.data ? (

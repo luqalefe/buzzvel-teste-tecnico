@@ -20,7 +20,7 @@ export function Countdown({ expiresAt, className }: { expiresAt: string | null; 
     const diff = new Date(expiresAt).getTime() - now;
 
     if (diff <= 0) {
-        return <span className={cn('text-warning', className)}>{t('countdown.overdue')}</span>;
+        return <span className={cn('text-status-rejected', className)}>{t('countdown.overdue')}</span>;
     }
 
     const totalMinutes = Math.floor(diff / 60_000);
@@ -30,7 +30,7 @@ export function Countdown({ expiresAt, className }: { expiresAt: string | null; 
     const urgent = diff < 6 * 60 * 60 * 1000;
 
     return (
-        <span className={cn(urgent ? 'text-warning' : 'text-muted-foreground', className)}>
+        <span className={cn(urgent ? 'text-status-pending' : 'text-muted-foreground', className)}>
             {t('countdown.expiresIn', { time: label })}
         </span>
     );

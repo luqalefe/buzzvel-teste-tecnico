@@ -1,23 +1,29 @@
-import { CheckCircle2, Clock, TimerOff, XCircle } from 'lucide-react';
+import { Ban, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
 import type { PaymentStatus } from '@/types';
+import { cn } from '@/lib/utils';
 
 const MAP = {
-    pending: { variant: 'warning', Icon: Clock },
-    approved: { variant: 'success', Icon: CheckCircle2 },
-    rejected: { variant: 'destructive', Icon: XCircle },
-    expired: { variant: 'outline', Icon: TimerOff },
+    pending: { Icon: Clock, cls: 'bg-status-pending/10 text-status-pending border-status-pending/25' },
+    approved: { Icon: CheckCircle2, cls: 'bg-status-approved/10 text-status-approved border-status-approved/25' },
+    rejected: { Icon: XCircle, cls: 'bg-status-rejected/10 text-status-rejected border-status-rejected/25' },
+    expired: { Icon: Ban, cls: 'bg-status-expired/10 text-status-expired border-status-expired/25' },
 } as const;
 
 export function StatusBadge({ status, className }: { status: PaymentStatus; className?: string }) {
     const { t } = useTranslation();
-    const { variant, Icon } = MAP[status];
+    const { Icon, cls } = MAP[status];
 
     return (
-        <Badge variant={variant} className={className}>
-            <Icon className="mr-1 size-3" />
+        <span
+            className={cn(
+                'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium',
+                cls,
+                className,
+            )}
+        >
+            <Icon className="size-3" />
             {t(`status.${status}`)}
-        </Badge>
+        </span>
     );
 }

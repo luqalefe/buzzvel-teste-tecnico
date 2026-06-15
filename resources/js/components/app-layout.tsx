@@ -28,7 +28,7 @@ export function AppLayout() {
     const linkClass = ({ isActive }: { isActive: boolean }) =>
         cn(
             'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-            isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+            isActive ? 'bg-brand/10 text-brand' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
         );
 
     return (
@@ -36,11 +36,11 @@ export function AppLayout() {
             {/* Sidebar (desktop) */}
             <aside className="hidden w-64 shrink-0 flex-col border-r bg-card md:flex">
                 <div className="flex h-16 items-center gap-2.5 border-b px-6">
-                    <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
                         <Wallet className="size-4" />
                     </div>
                     <div>
-                        <div className="text-sm font-semibold leading-tight">{t('app.name')}</div>
+                        <div className="font-display text-base font-bold leading-tight tracking-tight">{t('app.name')}</div>
                         <div className="text-xs text-muted-foreground">{t('app.tagline')}</div>
                     </div>
                 </div>
@@ -76,7 +76,7 @@ export function AppLayout() {
                                 className={({ isActive }) =>
                                     cn(
                                         'flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-medium',
-                                        isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground',
+                                        isActive ? 'bg-brand/10 text-brand' : 'text-muted-foreground',
                                     )
                                 }
                             >

@@ -1,6 +1,6 @@
 export const en = {
     app: {
-        name: 'PayFlow',
+        name: 'BuzzPay',
         tagline: 'Multi-currency payment requests',
     },
     common: {

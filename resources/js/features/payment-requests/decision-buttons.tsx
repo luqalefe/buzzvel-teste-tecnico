@@ -34,7 +34,7 @@ export function DecisionButtons({
 
     return (
         <div className="flex items-center gap-2">
-            <Button size={size} variant="success" disabled={busy} onClick={() => run('approved')}>
+            <Button size={size} variant="approve" disabled={busy} onClick={() => run('approved')}>
                 {busy && busyStatus === 'approved' ? <Spinner className="size-4" /> : <Check className="size-4" />}
                 {t('decide.approve')}
             </Button>

@@ -8,98 +8,119 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── Design tokens — "fintech premium": ink + paper + emerald ────────────── */
+/*
+| ── BuzzPay design tokens ───────────────────────────────────────────────────
+| Neutral graphite/off-white base · INK primary actions · a Buzzvel CORAL used
+| sparingly (logo, active nav, focus/hover, small details — never as a status
+| or primary-action colour) · independent semantic STATUS palette.
+*/
 :root {
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
-    /* warm paper / ink */
-    --background: oklch(0.985 0.003 106);
-    --foreground: oklch(0.205 0.006 56);
+    /* neutral off-white / graphite ink */
+    --background: oklch(0.985 0.002 75);
+    --foreground: oklch(0.205 0.004 75);
 
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.205 0.006 56);
+    --card-foreground: oklch(0.205 0.004 75);
 
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.205 0.006 56);
+    --popover-foreground: oklch(0.205 0.004 75);
 
-    /* emerald accent */
-    --primary: oklch(0.585 0.118 163);
-    --primary-foreground: oklch(0.985 0.01 160);
+    /* primary = ink (elegant near-black buttons) */
+    --primary: oklch(0.22 0.004 75);
+    --primary-foreground: oklch(0.985 0.002 75);
 
-    --secondary: oklch(0.965 0.004 106);
-    --secondary-foreground: oklch(0.255 0.006 56);
+    --secondary: oklch(0.965 0.003 75);
+    --secondary-foreground: oklch(0.25 0.004 75);
 
-    --muted: oklch(0.965 0.004 106);
-    --muted-foreground: oklch(0.505 0.01 56);
+    --muted: oklch(0.965 0.003 75);
+    --muted-foreground: oklch(0.505 0.008 75);
 
-    --accent: oklch(0.955 0.012 162);
-    --accent-foreground: oklch(0.27 0.03 163);
+    /* neutral hover surface (coral is applied deliberately, not here) */
+    --accent: oklch(0.96 0.003 75);
+    --accent-foreground: oklch(0.25 0.004 75);
 
-    --destructive: oklch(0.575 0.198 26);
-    --destructive-foreground: oklch(0.985 0 0);
+    /* brand coral — sparingly */
+    --brand: oklch(0.635 0.185 35);
+    --brand-foreground: oklch(0.99 0.01 40);
+    --brand-soft: oklch(0.95 0.04 40);
 
-    --success: oklch(0.585 0.118 163);
-    --success-foreground: oklch(0.985 0.01 160);
+    /* fixed dark surface for brand panels (intentionally NOT overridden in .dark) */
+    --panel: oklch(0.21 0.004 75);
+    --panel-foreground: oklch(0.97 0.003 75);
 
-    --warning: oklch(0.77 0.135 72);
-    --warning-foreground: oklch(0.27 0.06 60);
+    /* rejected/destructive red — distinct (purer red) from the brand coral */
+    --destructive: oklch(0.575 0.21 25);
+    --destructive-foreground: oklch(0.99 0 0);
 
-    --border: oklch(0.905 0.004 106);
-    --input: oklch(0.9 0.004 106);
-    --ring: oklch(0.585 0.118 163);
+    --border: oklch(0.905 0.003 75);
+    --input: oklch(0.9 0.003 75);
+    --ring: oklch(0.635 0.185 35);
 
-    --chart-1: oklch(0.585 0.118 163);
-    --chart-2: oklch(0.55 0.1 233);
-    --chart-3: oklch(0.77 0.135 72);
-    --chart-4: oklch(0.575 0.198 26);
-    --chart-5: oklch(0.55 0.02 256);
+    /* independent status palette: pending=amber, approved=blue, rejected=red, expired=gray */
+    --status-pending: oklch(0.575 0.125 66);
+    --status-approved: oklch(0.52 0.16 255);
+    --status-rejected: oklch(0.575 0.21 25);
+    --status-expired: oklch(0.52 0.008 75);
+
+    --chart-1: oklch(0.52 0.16 255);
+    --chart-2: oklch(0.62 0.13 66);
+    --chart-3: oklch(0.575 0.21 25);
+    --chart-4: oklch(0.55 0.008 75);
+    --chart-5: oklch(0.635 0.185 35);
 }
 
 .dark {
-    --background: oklch(0.185 0.006 66);
-    --foreground: oklch(0.96 0.004 106);
+    --background: oklch(0.18 0.004 75);
+    --foreground: oklch(0.96 0.003 75);
 
-    --card: oklch(0.215 0.006 66);
-    --card-foreground: oklch(0.96 0.004 106);
+    --card: oklch(0.215 0.004 75);
+    --card-foreground: oklch(0.96 0.003 75);
 
-    --popover: oklch(0.215 0.006 66);
-    --popover-foreground: oklch(0.96 0.004 106);
+    --popover: oklch(0.215 0.004 75);
+    --popover-foreground: oklch(0.96 0.003 75);
 
-    --primary: oklch(0.7 0.14 162);
-    --primary-foreground: oklch(0.18 0.03 163);
+    /* primary inverts to off-white in the dark */
+    --primary: oklch(0.95 0.003 75);
+    --primary-foreground: oklch(0.205 0.004 75);
 
-    --secondary: oklch(0.27 0.006 66);
-    --secondary-foreground: oklch(0.96 0.004 106);
+    --secondary: oklch(0.27 0.004 75);
+    --secondary-foreground: oklch(0.96 0.003 75);
 
-    --muted: oklch(0.27 0.006 66);
-    --muted-foreground: oklch(0.715 0.01 96);
+    --muted: oklch(0.27 0.004 75);
+    --muted-foreground: oklch(0.72 0.008 75);
 
-    --accent: oklch(0.29 0.025 163);
-    --accent-foreground: oklch(0.96 0.004 106);
+    --accent: oklch(0.285 0.004 75);
+    --accent-foreground: oklch(0.96 0.003 75);
 
-    --destructive: oklch(0.704 0.17 24);
+    --brand: oklch(0.7 0.18 36);
+    --brand-foreground: oklch(0.18 0.02 40);
+    --brand-soft: oklch(0.32 0.07 38);
+
+    --destructive: oklch(0.68 0.19 25);
     --destructive-foreground: oklch(0.985 0 0);
 
-    --success: oklch(0.7 0.14 162);
-    --success-foreground: oklch(0.18 0.03 163);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.7 0.18 36);
 
-    --warning: oklch(0.8 0.14 78);
-    --warning-foreground: oklch(0.26 0.06 60);
+    --status-pending: oklch(0.78 0.14 70);
+    --status-approved: oklch(0.68 0.15 255);
+    --status-rejected: oklch(0.7 0.19 25);
+    --status-expired: oklch(0.72 0.008 75);
 
-    --border: oklch(1 0 0 / 9%);
-    --input: oklch(1 0 0 / 13%);
-    --ring: oklch(0.7 0.14 162);
-
-    --chart-1: oklch(0.7 0.14 162);
-    --chart-2: oklch(0.65 0.12 233);
-    --chart-3: oklch(0.8 0.14 78);
-    --chart-4: oklch(0.704 0.17 24);
-    --chart-5: oklch(0.7 0.02 256);
+    --chart-1: oklch(0.68 0.15 255);
+    --chart-2: oklch(0.78 0.14 70);
+    --chart-3: oklch(0.7 0.19 25);
+    --chart-4: oklch(0.72 0.008 75);
+    --chart-5: oklch(0.7 0.18 36);
 }
 
 /* ── Map tokens into the Tailwind theme ─────────────────────────────────── */
 @theme inline {
-    --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'Bricolage Grotesque', 'Inter', ui-sans-serif, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 
     --color-background: var(--background);
@@ -116,12 +137,17 @@
     --color-muted-foreground: var(--muted-foreground);
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-brand-soft: var(--brand-soft);
+    --color-panel: var(--panel);
+    --color-panel-foreground: var(--panel-foreground);
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
-    --color-success: var(--success);
-    --color-success-foreground: var(--success-foreground);
-    --color-warning: var(--warning);
-    --color-warning-foreground: var(--warning-foreground);
+    --color-status-pending: var(--status-pending);
+    --color-status-approved: var(--status-approved);
+    --color-status-rejected: var(--status-rejected);
+    --color-status-expired: var(--status-expired);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
@@ -146,13 +172,15 @@
     body {
         background-color: var(--color-background);
         color: var(--color-foreground);
-        font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+        font-feature-settings: 'cv05', 'ss01';
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
     }
 
-    h1, h2, h3, h4 {
-        letter-spacing: -0.015em;
+    /* Display face for headings; tighten tracking for that editorial feel. */
+    h1, h2, h3 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
     }
 }
 
@@ -177,6 +205,20 @@
 
 .animate-fade-in-up {
     animation: fade-in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Soft fade used when content swaps (e.g. changing a status filter). */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.25s ease-out both;
 }
 
 /* Faint dotted texture for hero / empty surfaces. */

@@ -1,4 +1,4 @@
-# PayFlow — Multi-Currency Payment Requests
+# BuzzPay — Multi-Currency Payment Requests
 
 A small but production-shaped service where employees around the world submit payment requests in **their local currency**. At creation the system fetches the live **EUR → local** exchange rate, **freezes it immutably** on the request, and stores the EUR-equivalent. Finance approves or rejects pending requests, and anything left pending for **more than 48 hours expires automatically**.
 

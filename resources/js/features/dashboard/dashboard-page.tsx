@@ -6,16 +6,18 @@ import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCountUp } from '@/hooks/use-count-up';
 import { useStats } from '@/hooks/use-payment-requests';
-import { formatEur } from '@/lib/format';
+import { formatEur, formatNumber } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
 import { PAYMENT_STATUSES, type PaymentStatus } from '@/types';
 
 const STATUS_COLOR: Record<PaymentStatus, string> = {
-    pending: 'var(--chart-3)',
-    approved: 'var(--chart-2)',
-    rejected: 'var(--chart-4)',
-    expired: 'var(--chart-5)',
+    pending: 'var(--status-pending)',
+    approved: 'var(--status-approved)',
+    rejected: 'var(--status-rejected)',
+    expired: 'var(--status-expired)',
 };
 
 const tooltipStyle = {
@@ -31,21 +33,32 @@ const axisTick = { fill: 'var(--muted-foreground)', fontSize: 12 } as const;
 function StatCard({
     label,
     value,
+    format,
     icon: Icon,
+    highlight,
 }: {
     label: string;
-    value: string | number;
+    value: number;
+    format: (n: number) => string;
     icon: ComponentType<{ className?: string }>;
+    highlight?: boolean;
 }) {
+    const animated = useCountUp(value);
+
     return (
-        <Card>
+        <Card className={cn(highlight && 'ring-1 ring-brand/30')}>
             <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div
+                    className={cn(
+                        'flex size-11 items-center justify-center rounded-lg',
+                        highlight ? 'bg-brand/10 text-brand' : 'bg-muted text-muted-foreground',
+                    )}
+                >
                     <Icon className="size-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                     <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-                    <div className="tnum text-2xl font-semibold tracking-tight">{value}</div>
+                    <div className="tnum truncate text-2xl font-semibold tracking-tight">{format(animated)}</div>
                 </div>
             </CardContent>
         </Card>
@@ -59,6 +72,8 @@ export function DashboardPage() {
     const isFinance = user?.role === 'finance';
 
     const subtitle = isFinance ? t('dashboard.subtitleFinance') : t('dashboard.subtitle');
+    const eur = (n: number) => formatEur(n, i18n.language);
+    const count = (n: number) => formatNumber(Math.round(n), i18n.language, 0);
 
     if (isLoading) {
         return (
@@ -93,7 +108,7 @@ export function DashboardPage() {
     }));
 
     const currencyData = Object.entries(stats.eur_by_currency)
-        .map(([currency, eur]) => ({ currency, eur }))
+        .map(([currency, value]) => ({ currency, eur: value }))
         .sort((a, b) => b.eur - a.eur);
 
     return (
@@ -105,18 +120,10 @@ export function DashboardPage() {
             ) : (
                 <>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <StatCard label={t('dashboard.totalRequests')} value={stats.total_count} icon={ListChecks} />
-                        <StatCard label={t('dashboard.totalEur')} value={formatEur(stats.total_eur, i18n.language)} icon={Wallet} />
-                        <StatCard
-                            label={t('dashboard.pendingValue')}
-                            value={formatEur(stats.eur_by_status.pending ?? 0, i18n.language)}
-                            icon={Clock}
-                        />
-                        <StatCard
-                            label={t('dashboard.approvedValue')}
-                            value={formatEur(stats.eur_by_status.approved ?? 0, i18n.language)}
-                            icon={CheckCircle2}
-                        />
+                        <StatCard label={t('dashboard.totalRequests')} value={stats.total_count} format={count} icon={ListChecks} />
+                        <StatCard label={t('dashboard.totalEur')} value={stats.total_eur} format={eur} icon={Wallet} highlight />
+                        <StatCard label={t('dashboard.pendingValue')} value={stats.eur_by_status.pending ?? 0} format={eur} icon={Clock} />
+                        <StatCard label={t('dashboard.approvedValue')} value={stats.eur_by_status.approved ?? 0} format={eur} icon={CheckCircle2} />
                     </div>
 
                     <div className="mt-4 grid gap-4 lg:grid-cols-2">

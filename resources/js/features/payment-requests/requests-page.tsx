@@ -47,21 +47,26 @@ export function RequestsPage() {
                 </TabsList>
             </Tabs>
 
-            {isError ? (
-                <EmptyState title={t('errors.loadFailed')} />
-            ) : !isLoading && rows.length === 0 ? (
-                <EmptyState title={status === 'all' ? t('requests.empty') : t('requests.emptyFiltered')} />
-            ) : (
-                <>
-                    <RequestsTable
-                        requests={rows}
-                        isLoading={isLoading}
-                        showRequester={isFinance}
-                        showDecisions={isFinance}
-                    />
-                    <Pagination meta={data?.meta} page={page} onPage={setPage} />
-                </>
-            )}
+            {/* key on the filter so the results fade in when it changes */}
+            <div key={status} className="animate-fade-in">
+                {isError ? (
+                    <EmptyState title={t('errors.loadFailed')} />
+                ) : !isLoading && rows.length === 0 ? (
+                    <EmptyState title={status === 'all' ? t('requests.empty') : t('requests.emptyFiltered')}>
+                        {status === 'all' && <CreateRequestDialog />}
+                    </EmptyState>
+                ) : (
+                    <>
+                        <RequestsTable
+                            requests={rows}
+                            isLoading={isLoading}
+                            showRequester={isFinance}
+                            showDecisions={isFinance}
+                        />
+                        <Pagination meta={data?.meta} page={page} onPage={setPage} />
+                    </>
+                )}
+            </div>
         </div>
     );
 }

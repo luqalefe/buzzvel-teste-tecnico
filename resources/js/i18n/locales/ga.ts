@@ -2,7 +2,7 @@ import type { Translations } from './en';
 
 export const ga: Translations = {
     app: {
-        name: 'PayFlow',
+        name: 'BuzzPay',
         tagline: 'Iarratais íocaíochta ilairgeadra',
     },
     common: {

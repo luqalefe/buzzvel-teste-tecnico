@@ -54,9 +54,11 @@ export function PaymentRequestDetailPage() {
                                 )}
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-xs text-muted-foreground">{t('requests.convertedAmount')}</div>
-                            <div className="tnum text-2xl font-semibold text-primary">
+                        <div className="rounded-xl border border-brand/20 bg-brand/5 px-4 py-2.5 text-right">
+                            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                {t('requests.convertedAmount')}
+                            </div>
+                            <div className="tnum text-2xl font-bold text-foreground">
                                 {formatEur(request.converted_amount_eur, i18n.language)}
                             </div>
                         </div>

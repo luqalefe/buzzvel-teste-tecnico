@@ -56,10 +56,12 @@ export function RequestsTable({ requests, isLoading, showRequester, showDecision
                                       <TableCell className="font-medium">{request.user?.name ?? '—'}</TableCell>
                                   )}
                                   <TableCell>
-                                      <span className="tnum">{formatNumber(request.amount, i18n.language, 2)}</span>{' '}
-                                      <span className="text-muted-foreground">{request.currency}</span>
+                                      <span className="tnum">{formatNumber(request.amount, i18n.language, 2)}</span>
+                                      <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 align-middle text-[10px] font-semibold tracking-wide text-muted-foreground">
+                                          {request.currency}
+                                      </span>
                                   </TableCell>
-                                  <TableCell className="tnum font-medium">
+                                  <TableCell className="tnum font-semibold">
                                       {formatEur(request.converted_amount_eur, i18n.language)}
                                   </TableCell>
                                   <TableCell>
