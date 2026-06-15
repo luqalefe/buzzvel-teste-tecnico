@@ -23,18 +23,24 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-        $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy($nonce));
+        $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy($nonce, $request));
 
         return $response;
     }
 
-    private function contentSecurityPolicy(string $nonce): string
+    private function contentSecurityPolicy(string $nonce, Request $request): string
     {
         $local = app()->environment('local');
 
+        // The Swagger UI (l5-swagger) boots from an inline <script> we neither
+        // own nor can nonce, so it requires 'unsafe-inline'. Scope that
+        // relaxation strictly to the documentation routes — the SPA and the API
+        // keep the locked-down, nonce-only policy below.
+        $swaggerUi = $request->is('api/documentation', 'api/oauth2-callback', 'docs', 'docs/*');
+
         // Local dev needs inline/eval + the Vite HMR websocket; production locks
         // scripts down to same-origin + the nonce'd boot script.
-        $scriptSrc = $local
+        $scriptSrc = ($local || $swaggerUi)
             ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
             : "script-src 'self' 'nonce-{$nonce}'";
 
