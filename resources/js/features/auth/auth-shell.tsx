@@ -32,20 +32,16 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
                         {t('app.tagline')}
                     </h2>
 
-                    <div className="max-w-xs rounded-xl bg-panel-foreground/10 p-5 ring-1 ring-inset ring-panel-foreground/15 backdrop-blur">
-                        <div className="text-xs uppercase tracking-wider text-panel-foreground/70">
-                            {t('dashboard.totalEur')}
-                        </div>
-                        <div className="tnum mt-1.5 text-3xl font-semibold">€34.119,32</div>
-                        <div className="mt-3 flex items-end gap-1">
-                            {[24, 40, 32, 56, 72, 64, 88].map((h, i) => (
-                                <span
-                                    key={i}
-                                    className="w-3 rounded-sm bg-panel-foreground/35"
-                                    style={{ height: `${h}%` }}
-                                />
-                            ))}
-                        </div>
+                    {/* On-theme decoration: the currencies the product speaks — no fake data. */}
+                    <div className="flex max-w-xs flex-wrap gap-2">
+                        {['EUR', 'USD', 'GBP', 'BRL', 'JPY', 'CHF', 'SEK', 'PLN'].map((code) => (
+                            <span
+                                key={code}
+                                className="tnum rounded-md bg-panel-foreground/10 px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-panel-foreground/15"
+                            >
+                                {code}
+                            </span>
+                        ))}
                     </div>
                 </div>
 
