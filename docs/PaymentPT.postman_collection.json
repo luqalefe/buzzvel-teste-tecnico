@@ -1,0 +1,207 @@
+{
+    "info": {
+        "name": "Multi-Currency Payment API",
+        "description": "Buzzvel multi-currency payment requests. Set `base_url` (default http://localhost). Run **Login** (or **Register**) first — its test script stores the Sanctum token in the `token` collection variable, which every protected request reuses automatically.\n\nDemo accounts (after `php artisan db:seed`): finance@buzzvel.test and employee@buzzvel.test, password `password`.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "base_url", "value": "http://localhost", "type": "string" },
+        { "key": "token", "value": "", "type": "string" },
+        { "key": "payment_request_id", "value": "1", "type": "string" }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "  pm.collectionVariables.set('token', pm.response.json().token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": { "type": "noauth" },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "options": { "raw": { "language": "json" } },
+                            "raw": "{\n  \"name\": \"Alice Employee\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"password123\",\n  \"country\": \"Brazil\",\n  \"currency\": \"BRL\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "  pm.collectionVariables.set('token', pm.response.json().token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": { "type": "noauth" },
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "options": { "raw": { "language": "json" } },
+                            "raw": "{\n  \"email\": \"finance@buzzvel.test\",\n  \"password\": \"password\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] }
+                    }
+                },
+                {
+                    "name": "Current user",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": { "raw": "{{base_url}}/api/user", "host": ["{{base_url}}"], "path": ["api", "user"] }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": { "raw": "{{base_url}}/api/logout", "host": ["{{base_url}}"], "path": ["api", "logout"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Payment Requests",
+            "item": [
+                {
+                    "name": "List",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/api/payment-requests?status=pending",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "payment-requests"],
+                            "query": [{ "key": "status", "value": "pending" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Create",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "  pm.collectionVariables.set('payment_request_id', pm.response.json().data.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "options": { "raw": { "language": "json" } },
+                            "raw": "{\n  \"amount\": 110,\n  \"currency\": \"BRL\",\n  \"description\": \"Conference travel\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/payment-requests", "host": ["{{base_url}}"], "path": ["api", "payment-requests"] }
+                    }
+                },
+                {
+                    "name": "Preview conversion",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/api/payment-requests/preview?amount=110&currency=BRL",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "payment-requests", "preview"],
+                            "query": [
+                                { "key": "amount", "value": "110" },
+                                { "key": "currency", "value": "BRL" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": { "raw": "{{base_url}}/api/payment-requests/stats", "host": ["{{base_url}}"], "path": ["api", "payment-requests", "stats"] }
+                    }
+                },
+                {
+                    "name": "Show",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "url": {
+                            "raw": "{{base_url}}/api/payment-requests/{{payment_request_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "payment-requests", "{{payment_request_id}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Approve (finance)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "options": { "raw": { "language": "json" } },
+                            "raw": "{\n  \"status\": \"approved\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payment-requests/{{payment_request_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "payment-requests", "{{payment_request_id}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Reject (finance)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [{ "key": "Accept", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "options": { "raw": { "language": "json" } },
+                            "raw": "{\n  \"status\": \"rejected\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payment-requests/{{payment_request_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "payment-requests", "{{payment_request_id}}"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
