@@ -175,5 +175,7 @@ Every domain behaviour was written **test-first** (Red → Green → Refactor). 
 
 ## Notes
 
-- The brief's iteration-5 demo **video** is out of scope for this repository; the README, Swagger UI and Postman collection cover the walkthrough.
+- All 24 UI languages format **money, dates and numbers in their native locale** (`Intl`, see `resources/js/lib/format.ts`) — not just translated strings.
+- The required tests target **the API**; the suite is backend (74 tests / PHPUnit). The React SPA is guarded by **TypeScript type-checking + the production build**, not a separate frontend test harness.
+- The submission **video / public URL** lives outside this repo; the README, Swagger UI (`/api/documentation`) and Postman collection cover the walkthrough.
 - The exchange-rate provider is swappable via `config/exchange.php` / `EXCHANGE_*` env vars and is fully mocked in tests.

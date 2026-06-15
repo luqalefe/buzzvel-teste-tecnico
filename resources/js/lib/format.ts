@@ -1,6 +1,18 @@
-/** Map an app language to a full BCP-47 locale used for Intl formatting. */
+/**
+ * Each supported UI language mapped to a native BCP-47 locale, so money, dates
+ * and numbers format in local conventions (e.g. German "1.234,56 €", not US).
+ */
+const INTL_LOCALES: Record<string, string> = {
+    bg: 'bg-BG', cs: 'cs-CZ', da: 'da-DK', de: 'de-DE', el: 'el-GR',
+    en: 'en-US', es: 'es-ES', et: 'et-EE', fi: 'fi-FI', fr: 'fr-FR',
+    ga: 'ga-IE', hr: 'hr-HR', hu: 'hu-HU', it: 'it-IT', lt: 'lt-LT',
+    lv: 'lv-LV', mt: 'mt-MT', nl: 'nl-NL', pl: 'pl-PL', pt: 'pt-PT',
+    ro: 'ro-RO', sk: 'sk-SK', sl: 'sl-SI', sv: 'sv-SE',
+};
+
+/** Map an app language (e.g. "de", "pt-BR") to a full BCP-47 locale for Intl. */
 export function intlLocale(language: string): string {
-    return language.startsWith('pt') ? 'pt-BR' : 'en-US';
+    return INTL_LOCALES[language.split('-')[0]] ?? 'en-US';
 }
 
 export function formatMoney(value: number, currency: string, language: string): string {
