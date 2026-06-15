@@ -22,8 +22,8 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
             <aside className="relative hidden flex-col justify-between overflow-hidden bg-panel p-12 text-panel-foreground lg:flex">
                 <div className="bg-dotted pointer-events-none absolute inset-0 opacity-[0.1]" />
                 {/* Buzzvel-flavoured: slow drifting coral glow (their circular/organic motif) */}
-                <div className="animate-blob-a pointer-events-none absolute -left-24 -top-16 size-80 rounded-full bg-brand/25 blur-3xl" />
-                <div className="animate-blob-b pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-brand/15 blur-3xl" />
+                <div className="animate-blob-a pointer-events-none absolute -left-24 -top-16 size-80 rounded-full bg-brand/12 blur-3xl" />
+                <div className="animate-blob-b pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-brand/8 blur-3xl" />
 
                 <div className="relative flex items-center gap-2.5">
                     <div className="flex size-9 items-center justify-center rounded-lg bg-brand text-brand-foreground">
