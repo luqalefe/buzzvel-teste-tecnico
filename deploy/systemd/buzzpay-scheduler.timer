@@ -1,0 +1,30 @@
+[Unit]
+Description=BuzzPay Laravel scheduler timer (ticks schedule:run every minute)
+Documentation=https://github.com/luqalefe/buzzvel-teste-tecnico
+# NOTE: do NOT add Requires=/Wants= on buzzpay-scheduler.service here.
+# A timer is bound to its service solely via [Timer] Unit= below; adding a hard
+# dependency would make systemd start the service at timer-activation/boot time
+# instead of only on the scheduled tick. The .service is a oneshot started by
+# this timer, so the timer must not pull it in as a unit dependency.
+
+[Timer]
+# Activate the paired oneshot service that runs `php artisan schedule:run`.
+Unit=buzzpay-scheduler.service
+# Fire at the top of every minute. This mirrors the classic Laravel cron entry
+# "* * * * * php artisan schedule:run": Laravel's scheduler MUST tick every minute
+# so it can evaluate which registered tasks are due. The actual app task,
+# payment-requests:expire (the 48h TTL sweep, US-C1), is registered with ->hourly()
+# in routes/console.php, so schedule:run only dispatches it once per hour even
+# though this timer wakes every minute.
+OnCalendar=*-*-* *:*:00
+# Loosen wakeup precision so systemd can coalesce timers and avoid waking the CPU
+# on the exact second; 15s slack is well within the 1-minute cadence and is kind
+# to the other sites sharing this VPS.
+AccuracySec=15s
+# After downtime/reboot, run a single catch-up tick promptly instead of waiting up
+# to a full minute. The expiry logic is time-based (TTL vs now()), so one tick fully
+# reconciles any expirations that came due while the host was off.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

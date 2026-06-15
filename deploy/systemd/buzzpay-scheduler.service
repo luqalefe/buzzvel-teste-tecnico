@@ -1,0 +1,83 @@
+[Unit]
+Description=BuzzPay Laravel scheduler tick (dispatches due scheduled tasks)
+Documentation=https://github.com/luqalefe/buzzvel-teste-tecnico
+# `After=` is best-effort ordering only (it does NOT pull these units in, so it
+# stays non-destructive on a shared host). schedule:run is idempotent, so a
+# missed tick during early boot is harmless and the next minute recovers.
+After=network-online.target postgresql.service php8.3-fpm.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+# --- Identity ---------------------------------------------------------------
+# Runs as the dedicated app owner; the www-data group keeps storage/ and
+# bootstrap/cache writes compatible with files created by the php8.3-fpm
+# "buzzpay" pool (which runs buzzpay:www-data). UMask=0027 prevents the run
+# from creating world-writable log/cache files.
+User=buzzpay
+Group=www-data
+UMask=0027
+WorkingDirectory=/var/www/buzzpay
+
+# --- Command ----------------------------------------------------------------
+# Dispatches every task whose schedule is due this minute. For BuzzPay that
+# includes the hourly `payment-requests:expire` command (sweeps pending
+# requests past their 48h TTL — US-C1), declared in routes/console.php via
+# Schedule::command('payment-requests:expire')->hourly().
+#
+# Pinned to the versioned PHP 8.3 binary on purpose: this is a SHARED VPS and
+# /usr/bin/php (the update-alternatives symlink) may be repointed at another
+# PHP version by a co-tenant. The scheduler must run on the same 8.3 runtime
+# as the dedicated php8.3-fpm "buzzpay" pool.
+ExecStart=/usr/bin/php8.3 /var/www/buzzpay/artisan schedule:run
+
+# A wedged tick (e.g. a hung exchangerate-api.com call or a stalled DB) must
+# fail and clear rather than sit in `activating` forever and block the timer's
+# next trigger. Kept under the 1-minute cadence.
+TimeoutStartSec=110
+
+# --- Hardening --------------------------------------------------------------
+# No privilege escalation (php has no setuid needs here).
+NoNewPrivileges=true
+# Isolated /tmp + /var/tmp for this run.
+PrivateTmp=true
+# Mount the whole filesystem read-only, then re-open only the two paths Laravel
+# must write to at runtime: storage/ (compiled views, logs, framework cache &
+# schedule mutexes) and bootstrap/cache (config/route/event/view caches live
+# here in production). Cache/session/queue are DB-backed (CACHE_STORE=database,
+# SESSION_DRIVER=database, QUEUE_CONNECTION=database), so no other writable
+# filesystem path is required.
+ProtectSystem=strict
+ReadWritePaths=/var/www/buzzpay/storage
+ReadWritePaths=/var/www/buzzpay/bootstrap/cache
+# /home, /root and /run/user are made inaccessible. The app lives under
+# /var/www, so this does not affect it.
+ProtectHome=true
+
+# Extra co-tenant isolation on the shared VPS — all cheap and non-breaking for
+# a PHP CLI run. NOTE: MemoryDenyWriteExecute is intentionally NOT set, because
+# opcache/JIT can require W^X relaxations.
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+RestrictNamespaces=true
+RemoveIPC=true
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged ~@resources
+SystemCallErrorNumber=EPERM
+SystemCallArchitectures=native
+# AF_INET/AF_INET6 are REQUIRED: the app talks TCP to Postgres and HTTPS to
+# exchangerate-api.com. AF_UNIX covers the local Postgres socket.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+# Not strictly required (the companion .timer pulls this in), but harmless and
+# allows a manual `systemctl start buzzpay-scheduler.service` for a one-off run.
+WantedBy=multi-user.target
